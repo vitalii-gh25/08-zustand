@@ -4,7 +4,7 @@
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
-import { useNoteStore } from '@/lib/store';
+import { useNoteStore } from '@/lib/store/store';
 import css from './NoteForm.module.css';
 
 type CreateNoteDto = {
