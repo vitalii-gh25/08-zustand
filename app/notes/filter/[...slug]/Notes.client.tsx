@@ -1,28 +1,28 @@
+// app/notes/filter/[...slug]/Notes.client.tsx
+
 'use client';
 
 import { useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import Link from 'next/link';
+
 import { fetchNotes } from '@/lib/api';
 import type { Note } from '@/types/note';
 import type { FetchNotesResponse } from '@/lib/api';
 import NoteList from '@/components/NoteList/NoteList';
-import NoteForm from '@/components/NoteForm/NoteForm';
-import Modal from '@/components/Modal/Modal';
 import Pagination from '@/components/Pagination/Pagination';
 import SearchBox from '@/components/SearchBox/SearchBox';
 import css from './NotesPage.module.css';
 
-interface Props {
+interface NotesClientProps {
   defaultTag?: string;
 }
 
-export default function NotesClient({ defaultTag }: Props) {
+export default function NotesClient({ defaultTag }: NotesClientProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isFormOpen, setIsFormOpen] = useState(false);
 
-  // Если тег "all", передаем undefined
   const tag = defaultTag;
 
   const queryClient = useQueryClient();
@@ -63,17 +63,12 @@ export default function NotesClient({ defaultTag }: Props) {
             currentPage={currentPage}
           />
         )}
-        <button onClick={() => setIsFormOpen(true)} className={css.button}>
-          Create Note
-        </button>
+        <Link href="/notes/action/create" className={css.button}>
+          Create Note +
+        </Link>
       </header>
 
       <main className={css.main}>
-        {isFormOpen && (
-          <Modal onClose={() => setIsFormOpen(false)}>
-            <NoteForm onClose={() => setIsFormOpen(false)} />
-          </Modal>
-        )}
         {notes.length > 0 ? (
           <NoteList notes={notes} />
         ) : (

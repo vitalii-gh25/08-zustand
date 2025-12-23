@@ -1,111 +1,125 @@
-//components/NoteForm/NoteForm.tsx
+// components/NoteForm/NoteForm.tsx
 
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createNote } from "@/lib/api";
-import css from "./NoteForm.module.css";
+'use client';
 
-interface NoteFormProps {
-  onClose?: () => void;
-}
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useNoteStore } from '@/lib/noteStore';
+import css from './NoteForm.module.css';
 
-interface FormValues {
-  title: string;
-  content: string;
-  tag: string;
-}
+export default function NoteForm() {
+  const router = useRouter();
+  const { draft, setDraft, clearDraft } = useNoteStore();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-const NoteForm = ({ onClose }: NoteFormProps) => {
-  const queryClient = useQueryClient();
+  // Отмена: возвращаемся на предыдущую страницу, draft сохраняем
+  const handleCancel = () => {
+    router.back();
+  };
 
-  const mutation = useMutation({
-    mutationFn: (values: FormValues) => createNote(values),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-      onClose?.();
-    },
-  });
+  // Изменение полей формы сохраняем в draft
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    const { name, value } = e.target;
+    setDraft({ [name]: value });
+  };
 
-  const validationSchema = Yup.object({
-    title: Yup.string().min(3).max(50).required("Title is required"),
-    content: Yup.string().max(500),
-    tag: Yup.string()
-      .oneOf(["Todo", "Work", "Personal", "Meeting", "Shopping"])
-      .required("Tag is required"),
-  });
+  // Сабмит формы
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      await axios.post('https://notehub-public.goit.study/api/notes', draft, {
+        headers: {
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_NOTEHUB_TOKEN}`,
+        },
+      });
+
+      clearDraft(); // очищаем draft после успешного создания
+      router.back(); // возвращаемся на предыдущий маршрут с прогрессом
+    } catch (err) {
+      console.error(err);
+      setError('Error creating note. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <Formik<FormValues>
-      initialValues={{ title: "", content: "", tag: "Todo" }}
-      validationSchema={validationSchema}
-      onSubmit={(values, { setSubmitting }) => {
-        mutation.mutate(values, {
-          onSettled: () => setSubmitting(false),
-        });
-      }}
-    >
-      {({ isSubmitting }) => (
-        <Form className={css.form}>
-          <div className={css.formGroup}>
-            <label htmlFor="title">Title</label>
-            <Field id="title" name="title" className={css.input} />
-            <ErrorMessage name="title" component="span" className={css.error} />
-          </div>
+    <form className={css.form} onSubmit={handleSubmit}>
+      <div className={css.formGroup}>
+        <label htmlFor="title">Title</label>
+        <input
+          id="title"
+          name="title"
+          type="text"
+          className={css.input}
+          required
+          minLength={3}
+          maxLength={50}
+          value={draft.title}
+          onChange={handleChange}
+        />
+      </div>
 
-          <div className={css.formGroup}>
-            <label htmlFor="content">Content</label>
-            <Field
-              id="content"
-              name="content"
-              as="textarea"
-              rows={6}
-              className={css.textarea}
-            />
-            <ErrorMessage
-              name="content"
-              component="span"
-              className={css.error}
-            />
-          </div>
+      <div className={css.formGroup}>
+        <label htmlFor="content">Content</label>
+        <textarea
+          id="content"
+          name="content"
+          rows={6}
+          className={css.textarea}
+          maxLength={500}
+          value={draft.content}
+          onChange={handleChange}
+        />
+      </div>
 
-          <div className={css.formGroup}>
-            <label htmlFor="tag">Tag</label>
-            <Field id="tag" name="tag" as="select" className={css.select}>
-              <option value="Todo">Todo</option>
-              <option value="Work">Work</option>
-              <option value="Personal">Personal</option>
-              <option value="Meeting">Meeting</option>
-              <option value="Shopping">Shopping</option>
-            </Field>
-            <ErrorMessage name="tag" component="span" className={css.error} />
-          </div>
+      <div className={css.formGroup}>
+        <label htmlFor="tag">Tag</label>
+        <select
+          id="tag"
+          name="tag"
+          className={css.select}
+          required
+          value={draft.tag}
+          onChange={handleChange}
+        >
+          <option value="">-- Select tag --</option> {/* пустая опция */}
+          <option value="Todo">Todo</option>
+          <option value="Work">Work</option>
+          <option value="Personal">Personal</option>
+          <option value="Meeting">Meeting</option>
+          <option value="Shopping">Shopping</option>
+        </select>
+      </div>
 
-          <div className={css.actions}>
-            <button
-              type="button"
-              onClick={() => onClose?.()}
-              disabled={isSubmitting}
-              className={css.cancelButton}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={css.submitButton}
-            >
-              {isSubmitting ? "Saving..." : "Create note"}
-            </button>
-          </div>
+      <div className={css.actions}>
+        <button
+          type="submit"
+          className={css.submitButton}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Saving...' : 'Create note'}
+        </button>
+        <button
+          type="button"
+          className={css.cancelButton}
+          onClick={handleCancel}
+          disabled={isSubmitting}
+        >
+          Cancel
+        </button>
+      </div>
 
-          {mutation.isError && (
-            <p className={css.error}>Error creating note. Please try again.</p>
-          )}
-        </Form>
-      )}
-    </Formik>
+      {error && <p className={css.error}>{error}</p>}
+    </form>
   );
-};
-
-export default NoteForm;
+}

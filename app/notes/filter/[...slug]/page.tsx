@@ -1,3 +1,5 @@
+// app/notes/filter/[...slug]/page.tsx
+
 import {
   QueryClient,
   HydrationBoundary,
@@ -34,6 +36,6 @@ const NotesByCategory = async ({ params }: Props) => {
       <NotesClient defaultTag={tag} />
     </HydrationBoundary>
   );
-}
+};
 
 export default NotesByCategory;
