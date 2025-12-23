@@ -8,11 +8,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'picsum.photos',
+        pathname: '/**', // разрешаем любые пути
       },
       {
         protocol: 'https',
         hostname: 'ac.goit.global',
-        pathname: '/fullstack/react/notehub-og-meta.jpg',
+        pathname: '/fullstack/react/**', // разрешаем все пути в этой папке
       },
     ],
   },
@@ -23,8 +24,8 @@ const nextConfig: NextConfig = {
         locale: false,
         headers: [
           {
-            key: 'Cache-Control', // Заголовок
-            value: 'public, max-age=300, must-revalidate', // кешуємо на 5 хв
+            key: 'Cache-Control',
+            value: 'public, max-age=300, must-revalidate',
           },
         ],
       },
