@@ -26,8 +26,8 @@ export default function NoteForm() {
       });
     },
     onSuccess: () => {
-      clearDraft(); // ✅ очищаємо draft ТІЛЬКИ після успішного створення
-      router.back(); // ✅ повертаємось на попередній маршрут
+      clearDraft();
+      router.back();
     },
   });
 
