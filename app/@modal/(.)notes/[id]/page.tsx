@@ -17,7 +17,6 @@ type Props = {
 
 export default async function NoteModalPage({ params }: Props) {
   const { id } = await params;
-
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({

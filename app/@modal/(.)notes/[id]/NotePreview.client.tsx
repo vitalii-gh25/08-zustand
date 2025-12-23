@@ -33,15 +33,18 @@ export default function NotePreview() {
   return (
     <Modal onClose={handleClose}>
       <div className={css.container}>
-        <h2>{note.title}</h2>
-        <p>{note.content}</p>
+        <div className={css.item}>
+          <div className={css.header}>
+            <h2>{note.title}</h2>
+            <span className={css.tag}>{note.tag}</span>
+          </div>
 
-        {/* ✅ ТІЛЬКИ createdAt */}
-        <p>Created at: {note.createdAt}</p>
+          <p className={css.content}>{note.content}</p>
 
-        <span>{note.tag}</span>
+          {/* ✅ только createdAt */}
+          <p className={css.date}>Created at: {note.createdAt}</p>
+        </div>
       </div>
-
       <button className={css.backBtn} onClick={handleClose}>
         Back
       </button>
