@@ -1,6 +1,26 @@
 // app/notes/action/create/page.tsx
+
+import type { Metadata } from 'next';
 import NoteForm from '@/components/NoteForm/NoteForm';
 import css from './CreateNote.module.css';
+
+export const metadata: Metadata = {
+  title: 'Create Note | NoteHub',
+  description: 'Сторінка для створення нової нотатки у NoteHub.',
+  openGraph: {
+    title: 'Create Note | NoteHub',
+    description: 'Сторінка для створення нової нотатки у NoteHub.',
+    url: 'https://notehub.com/notes/action/create',
+    images: [
+      {
+        url: 'https://ac.goit.global/fullstack/react/og-meta.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Create Note | NoteHub',
+      },
+    ],
+  },
+};
 
 export default function CreateNote() {
   return (

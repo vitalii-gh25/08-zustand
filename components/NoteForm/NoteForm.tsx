@@ -1,9 +1,10 @@
 // components/NoteForm/NoteForm.tsx
+
 'use client';
 
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNoteStore } from '@/lib/store/noteStore';
 import css from './NoteForm.module.css';
 
@@ -15,6 +16,7 @@ type CreateNoteDto = {
 
 export default function NoteForm() {
   const router = useRouter();
+  const queryClient = useQueryClient(); // ✅ додано
   const { draft, setDraft, clearDraft } = useNoteStore();
 
   const { mutate, isPending, isError } = useMutation({
@@ -26,6 +28,7 @@ export default function NoteForm() {
       });
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notes'] }); // ✅ інвалідація кешу
       clearDraft();
       router.back();
     },
@@ -46,7 +49,7 @@ export default function NoteForm() {
   };
 
   const handleCancel = () => {
-    router.back(); // ✅ draft НЕ очищаємо
+    router.back(); // draft НЕ очищаємо
   };
 
   return (
