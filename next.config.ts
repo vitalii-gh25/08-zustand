@@ -1,8 +1,20 @@
+// next.config.ts
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  reactStrictMode: true,
   images: {
-    domains: ['ac.goit.global'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ac.goit.global',
+        pathname: '/fullstack/react/notehub-og-meta.jpg',
+      },
+    ],
   },
   async headers() {
     return [
