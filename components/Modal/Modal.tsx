@@ -10,7 +10,6 @@ interface ModalProps {
   onClose: () => void;
 }
 
-// try to find existing modal root, fallback to document.body if not present
 const modalRoot =
   (typeof document !== 'undefined' && document.getElementById('modal-root')) ||
   (typeof document !== 'undefined' ? document.body : null);
@@ -19,12 +18,10 @@ export default function Modal({ children, onClose }: ModalProps) {
   useEffect(() => {
     if (!modalRoot) return;
 
-    // handler for Escape key
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
 
-    // prevent page scroll while modal is open
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
@@ -32,7 +29,6 @@ export default function Modal({ children, onClose }: ModalProps) {
 
     return () => {
       document.removeEventListener('keydown', handleEsc);
-      // restore previous overflow value
       document.body.style.overflow = previousOverflow;
     };
   }, [onClose]);
