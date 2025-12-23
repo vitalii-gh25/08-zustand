@@ -14,7 +14,6 @@ type Props = {
   params: Promise<{ slug?: string[] }>;
 };
 
-/* ================= METADATA ================= */
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -49,7 +48,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-/* ================= PAGE ================= */
 
 const NotesByCategory = async ({ params }: Props) => {
   const { slug: slugArr } = await params;

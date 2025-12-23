@@ -31,7 +31,6 @@ export default function NoteForm() {
     },
   });
 
-  // ✅ по ТЗ — onChange
   const onChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement

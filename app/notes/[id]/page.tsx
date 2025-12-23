@@ -13,8 +13,6 @@ type Props = {
   params: Promise<{ id: string }>;
 };
 
-// app/notes/[id]/page.tsx
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const note = await fetchNoteById(id);
