@@ -6,7 +6,6 @@ import { useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
-
 import { fetchNotes } from '@/lib/api';
 import type { Note } from '@/types/note';
 import type { FetchNotesResponse } from '@/lib/api';

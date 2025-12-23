@@ -1,4 +1,4 @@
-//app/layout.tsx
+// app/layout.tsx
 
 import { Roboto } from 'next/font/google';
 import type { Metadata } from 'next';
@@ -9,7 +9,20 @@ import TanStackProvider from '@/components/TanStackProvider/TanStackProvider';
 
 export const metadata: Metadata = {
   title: 'NoteHub',
-  description: 'Created by GoIT',
+  description: 'A simple and convenient app for creating and managing notes.',
+  openGraph: {
+    title: 'NoteHub',
+    description: 'A simple and convenient app for creating and managing notes.',
+    url: 'https://notehub.com',
+    images: [
+      {
+        url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'NoteHub — notes application',
+      },
+    ],
+  },
 };
 
 const roboto = Roboto({

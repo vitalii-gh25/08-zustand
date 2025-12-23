@@ -1,26 +1,38 @@
 // components/NoteForm/NoteForm.tsx
-
 'use client';
 
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { useNoteStore } from '@/lib/noteStore';
 import css from './NoteForm.module.css';
+
+type CreateNoteDto = {
+  title: string;
+  content: string;
+  tag: string;
+};
 
 export default function NoteForm() {
   const router = useRouter();
   const { draft, setDraft, clearDraft } = useNoteStore();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  // Отмена: возвращаемся на предыдущую страницу, draft сохраняем
-  const handleCancel = () => {
-    router.back();
-  };
+  const { mutate, isPending, isError } = useMutation({
+    mutationFn: async (data: CreateNoteDto) => {
+      await axios.post('https://notehub-public.goit.study/api/notes', data, {
+        headers: {
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_NOTEHUB_TOKEN}`,
+        },
+      });
+    },
+    onSuccess: () => {
+      clearDraft(); // ✅ очищаємо draft ТІЛЬКИ після успішного створення
+      router.back(); // ✅ повертаємось на попередній маршрут
+    },
+  });
 
-  // Изменение полей формы сохраняем в draft
-  const handleChange = (
+  // ✅ по ТЗ — onChange
+  const onChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >,
@@ -29,27 +41,13 @@ export default function NoteForm() {
     setDraft({ [name]: value });
   };
 
-  // Сабмит формы
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
+    mutate(draft);
+  };
 
-    try {
-      await axios.post('https://notehub-public.goit.study/api/notes', draft, {
-        headers: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_NOTEHUB_TOKEN}`,
-        },
-      });
-
-      clearDraft(); // очищаем draft после успешного создания
-      router.back(); // возвращаемся на предыдущий маршрут с прогрессом
-    } catch (err) {
-      console.error(err);
-      setError('Error creating note. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleCancel = () => {
+    router.back(); // ✅ draft НЕ очищаємо
   };
 
   return (
@@ -65,7 +63,7 @@ export default function NoteForm() {
           minLength={3}
           maxLength={50}
           value={draft.title}
-          onChange={handleChange}
+          onChange={onChange}
         />
       </div>
 
@@ -78,7 +76,7 @@ export default function NoteForm() {
           className={css.textarea}
           maxLength={500}
           value={draft.content}
-          onChange={handleChange}
+          onChange={onChange}
         />
       </div>
 
@@ -90,9 +88,9 @@ export default function NoteForm() {
           className={css.select}
           required
           value={draft.tag}
-          onChange={handleChange}
+          onChange={onChange}
         >
-          <option value="">-- Select tag --</option> {/* пустая опция */}
+          <option value="">Select tag</option>
           <option value="Todo">Todo</option>
           <option value="Work">Work</option>
           <option value="Personal">Personal</option>
@@ -102,24 +100,23 @@ export default function NoteForm() {
       </div>
 
       <div className={css.actions}>
-        <button
-          type="submit"
-          className={css.submitButton}
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Saving...' : 'Create note'}
+        <button type="submit" className={css.submitButton} disabled={isPending}>
+          {isPending ? 'Saving...' : 'Create note'}
         </button>
+
         <button
           type="button"
           className={css.cancelButton}
           onClick={handleCancel}
-          disabled={isSubmitting}
+          disabled={isPending}
         >
           Cancel
         </button>
       </div>
 
-      {error && <p className={css.error}>{error}</p>}
+      {isError && (
+        <p className={css.error}>Error creating note. Please try again.</p>
+      )}
     </form>
   );
 }
